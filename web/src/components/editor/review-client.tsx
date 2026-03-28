@@ -286,7 +286,7 @@ export function ReviewClient({ articleId }: { articleId: Id<"articles"> }) {
             <CardContent className="flex flex-col gap-3">
               <Button disabled={disableReviewActions} onClick={handlePublish}>
                 {busyAction === "publish" ? <LoaderCircle className="animate-spin" data-icon="inline-start" /> : <CheckCircle2 data-icon="inline-start" />}
-                Approve and publish
+                Approve & Publish
               </Button>
               <Button
                 disabled={disableReviewActions}
@@ -303,11 +303,11 @@ export function ReviewClient({ articleId }: { articleId: Id<"articles"> }) {
                   }
                 >
                   <SendHorizontal data-icon="inline-start" />
-                  Reject and return
+                  Reject & Return to Writer
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Return this article to the writer</DialogTitle>
+                    <DialogTitle>Reject & Return to Writer</DialogTitle>
                     <DialogDescription>
                       A note is required so the writer knows what to fix before translation is requested again.
                     </DialogDescription>
@@ -327,7 +327,7 @@ export function ReviewClient({ articleId }: { articleId: Id<"articles"> }) {
                       variant="secondary"
                     >
                       {busyAction === "reject" ? <LoaderCircle className="animate-spin" data-icon="inline-start" /> : null}
-                      Reject and return to writer
+                      Reject & Return to Writer
                     </Button>
                   </DialogFooter>
                 </DialogContent>

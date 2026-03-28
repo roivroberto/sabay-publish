@@ -1039,7 +1039,7 @@ This excludes collaboration features, but it keeps permissions, UI, and demo flo
 
 **Presenter:** [Name]  
 **Duration:** ~8 minutes  
-**Demo accounts:** `demo-writer@paraluman.org`, `demo-editor@paraluman.org`
+**Demo accounts:** use the currently configured writer and editor emails from `DEMO_WRITER_EMAILS` and `DEMO_EDITOR_EMAILS`
 
 ### Opening
 > “Paraluman wants English and Filipino stories to go live together, but translation is slow and inconsistent. Sabay Publish fixes that with a human-in-the-loop workflow: AI drafts the Filipino version, an editor reviews it, and one action publishes both versions at the same time.”
@@ -1048,21 +1048,21 @@ This excludes collaboration features, but it keeps permissions, UI, and demo flo
 - Log in as writer
 - Create a new article
 - Use “Commission on Elections” in the headline to trigger glossary behavior
-- Use “₱500 million” in the body to trigger a QA example
+- Include a date or some untranslated newsroom terms in the body so at least one QA warning is easy to point out in a local mock run
 - Submit for translation
-- Show status changing from `DRAFT` to `TRANSLATING` to `NEEDS_REVIEW`
+- Show the status moving out of `DRAFT`; on a fast local setup, `TRANSLATING` may flash briefly before the article settles in `NEEDS_REVIEW`
 
 ### Step 2: Editor reviews
 - Log in as editor
 - Open `/editor/queue`
 - Open the review screen
 - Point to English on the left and Filipino on the right
-- Show the glossary term resolving correctly
-- Show the number QA warning
+- Show the glossary term resolving correctly in the Filipino draft
+- Show at least one QA warning; in local mock mode, leftover English is the most reliable example
 - Demonstrate an inline Filipino edit
 
 ### Step 3: Optional reject loop
-- Click reject
+- Click `Reject & Return to Writer`
 - Enter a short editor note such as: “Verify the number denomination in paragraph 2.”
 - Show that the article returns to `DRAFT`
 - Show the rejection note visible in the writer view
@@ -1076,10 +1076,10 @@ This excludes collaboration features, but it keeps permissions, UI, and demo flo
 - Switch languages live
 
 ### Step 5: Show accountability
-- Open the audit trail or Convex dashboard
-- Point to `translation_completed`, `article_approved`, `article_published`
-- Point to `publication_records`
-- Mention that rejection notes are also logged
+- Re-open the article detail page in the editorial app
+- Point to the in-app Workflow history entries for `translation_completed`, `article_approved`, and `article_published`
+- Point to the published article pair summary with both URLs and the shared publish timestamp
+- Mention that rejection notes and translation failures also appear in the same history
 
 ### Closing
 > “Sabay Publish is not trying to replace editors. It is trying to give them a faster workflow with better safeguards. The AI does the first-pass translation. The editor makes the final call. That is what Paraluman’s AI policy requires, and that is what this prototype delivers.”

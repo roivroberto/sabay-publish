@@ -93,17 +93,19 @@ test("covers the writer, editor, and public publishing workflow", async ({
   await expect(queuePage.getByText(article.headline)).toBeVisible();
   await expect(queuePage.getByText("Filipino draft", { exact: true })).toBeVisible();
 
-  await queuePage.getByRole("button", { name: "Reject and return" }).click();
+  await queuePage.getByRole("button", { name: "Reject & Return to Writer" }).click();
   await queuePage.getByLabel("Required editor note").fill(article.rejectionNote);
   await queuePage
-    .getByRole("button", { name: "Reject and return to writer" })
+    .getByRole("button", { name: "Reject & Return to Writer" })
     .click();
   await expect(queuePage).toHaveURL(/\/editor\/queue$/);
 
   await writerPage.goto(articlePath);
   await waitForStatus(writerPage, "DRAFT");
   await expect(writerPage.getByText("Latest editor note")).toBeVisible();
-  await expect(writerPage.getByText(article.rejectionNote)).toBeVisible();
+  await expect(
+    writerPage.getByText(article.rejectionNote, { exact: true }),
+  ).toBeVisible();
 
   await writerPage.getByRole("button", { name: "Submit for Translation" }).click();
   await waitForStatus(writerPage, "NEEDS REVIEW");
@@ -131,7 +133,7 @@ test("covers the writer, editor, and public publishing workflow", async ({
   await queuePage.getByRole("button", { name: "Save Filipino edits" }).click();
   await expect(queuePage.getByText("Filipino edits saved.")).toBeVisible();
 
-  await queuePage.getByRole("button", { name: "Approve and publish" }).click();
+  await queuePage.getByRole("button", { name: "Approve & Publish" }).click();
   await expect(queuePage).toHaveURL(new RegExp(`${filipinoPath}$`));
   await expect(
     queuePage.getByText("AI-assisted translation disclosure"),

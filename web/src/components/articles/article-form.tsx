@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/articles/status-badge";
+import { WorkflowHistory } from "@/components/articles/workflow-history";
 import { cn } from "@/lib/utils";
 
 type FormState = {
@@ -379,6 +380,13 @@ export function ArticleForm({ articleId }: { articleId?: Id<"articles"> }) {
             </div>
           </CardContent>
         </Card>
+
+        {articleId && bundle ? (
+          <WorkflowHistory
+            auditLogs={bundle.auditLogs}
+            publication={bundle.publication}
+          />
+        ) : null}
       </div>
     </div>
   );

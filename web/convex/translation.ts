@@ -4,6 +4,7 @@ import { TranslationServiceClient } from "@google-cloud/translate";
 import { ConvexError, v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import type { Doc } from "./_generated/dataModel";
 import { buildQaWarnings } from "./lib";
 
 const translationClient = new TranslationServiceClient();
@@ -19,14 +20,24 @@ function buildMockTranslation(args: {
   headline: string;
   deck: string;
   body: string;
+  glossaryTerms: Array<Doc<"glossary_terms">>;
 }) {
   const prefix = process.env.E2E_TRANSLATION_PREFIX ?? "Filipino draft";
+  const orderedGlossaryTerms = [...args.glossaryTerms].sort(
+    (left, right) => right.englishTerm.length - left.englishTerm.length,
+  );
+  const applyGlossary = (value: string) =>
+    orderedGlossaryTerms.reduce(
+      (currentValue, term) =>
+        currentValue.replaceAll(term.englishTerm, term.filipinoTerm),
+      value,
+    );
 
   return {
-    translatedHeadline: `${prefix}: ${args.headline}`,
-    translatedDeck: `${prefix}: ${args.deck}`,
-    translatedBody: `${prefix}: ${args.body}`,
-    glossaryApplied: true,
+    translatedHeadline: `${prefix}: ${applyGlossary(args.headline)}`,
+    translatedDeck: `${prefix}: ${applyGlossary(args.deck)}`,
+    translatedBody: `${prefix}: ${applyGlossary(args.body)}`,
+    glossaryApplied: orderedGlossaryTerms.length > 0,
   } satisfies TranslationPayload;
 }
 
@@ -54,6 +65,7 @@ async function translateArticle(args: {
   headline: string;
   deck: string;
   body: string;
+  glossaryTerms: Array<Doc<"glossary_terms">>;
 }) {
   if (process.env.PARALUMAN_E2E_MOCK_TRANSLATION === "1") {
     return buildMockTranslation(args);
@@ -122,6 +134,7 @@ export const generateTranslation = internalAction({
         headline: article.headline,
         deck: article.deck,
         body: article.body,
+        glossaryTerms,
       });
 
       const qaWarnings = buildQaWarnings({
