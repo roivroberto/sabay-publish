@@ -1,5 +1,5 @@
 import { query, mutation } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import {
   ensureViewer,
   getUserByClerkId,
@@ -46,11 +46,18 @@ export const ensureCurrentUser = mutation({
 
 export const upsertFromWebhook = mutation({
   args: {
+    sharedSecret: v.string(),
     clerkId: v.string(),
     email: v.string(),
     displayName: v.string(),
   },
   handler: async (ctx, args) => {
+    const expectedSecret = process.env.CLERK_WEBHOOK_SECRET;
+
+    if (!expectedSecret || args.sharedSecret !== expectedSecret) {
+      throw new ConvexError("Webhook authorization failed.");
+    }
+
     const email = normalizeEmail(args.email);
     const existing =
       (await getUserByClerkId(ctx, args.clerkId)) ??

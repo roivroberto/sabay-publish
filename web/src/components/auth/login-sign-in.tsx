@@ -7,6 +7,7 @@ import { useEffect } from "react";
 export function LoginSignIn() {
   const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
+  const signUpDisabledUrl = "/login?mode=signup-disabled";
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -23,7 +24,8 @@ export function LoginSignIn() {
       fallbackRedirectUrl="/dashboard"
       path="/login"
       routing="path"
-      signUpUrl=""
+      signUpUrl={signUpDisabledUrl}
+      withSignUp={false}
     />
   );
 }

@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import { Plus, ArrowRight, Languages } from "lucide-react";
 import { api } from "@convex/_generated/api";
+import { ProfileSyncCard } from "@/components/auth/profile-sync-card";
 import { EditorialShell } from "@/components/editorial-shell";
 import { StatusBadge } from "@/components/articles/status-badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -39,17 +40,10 @@ export function DashboardClient() {
         description="Finalizing your Convex profile before loading the newsroom dashboard."
         title="Writer and editor dashboard"
       >
-        <Card className="rounded-[2rem] border-white/90 bg-white/92">
-          <CardHeader>
-            <CardTitle className="font-heading text-3xl">
-              Syncing your newsroom profile
-            </CardTitle>
-            <CardDescription>
-              Your Clerk account is signed in. We&apos;re finishing the Convex user
-              record before loading your dashboard.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <ProfileSyncCard
+          description="Your Clerk account is signed in. We&apos;re finishing the Convex user record before loading your dashboard."
+          title="Syncing your newsroom profile"
+        />
       </EditorialShell>
     );
   }

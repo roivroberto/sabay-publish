@@ -14,6 +14,7 @@ import {
   RefreshCcw,
   SendHorizontal,
 } from "lucide-react";
+import { ProfileSyncCard } from "@/components/auth/profile-sync-card";
 import { EditorialShell } from "@/components/editorial-shell";
 import { StatusBadge } from "@/components/articles/status-badge";
 import { shouldUsePublicMockTranslation } from "@/lib/env";
@@ -82,10 +83,12 @@ export function ReviewClient({ articleId }: { articleId: Id<"articles"> }) {
   async function handleRetranslate() {
     try {
       setBusyAction("retranslate");
-      await requestRetranslation({
+      const retranslationRequest = {
         articleId,
-        mockTranslation: shouldMockTranslation,
-      });
+        ...(shouldMockTranslation ? { mockTranslation: true } : {}),
+      };
+
+      await requestRetranslation(retranslationRequest);
       toast.success("Re-translation requested. Refreshing the Filipino draft.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not re-translate.");
@@ -130,11 +133,10 @@ export function ReviewClient({ articleId }: { articleId: Id<"articles"> }) {
         description="Finalizing your Convex profile before opening review."
         title="Translation review"
       >
-        <Card>
-          <CardContent className="flex min-h-80 items-center justify-center">
-            <LoaderCircle className="animate-spin text-primary" />
-          </CardContent>
-        </Card>
+        <ProfileSyncCard
+          description="Your Clerk account is signed in. We&apos;re finishing the Convex user record before opening review."
+          title="Syncing your newsroom profile"
+        />
       </EditorialShell>
     );
   }

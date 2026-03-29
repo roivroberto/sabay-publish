@@ -15,6 +15,12 @@ test("renders the branded login shell", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("redirects sign-up attempts back to the login screen", async ({ page }) => {
+  await page.goto("/login/create");
+  await expect(page).toHaveURL(/\/login\?mode=signup-disabled/);
+  await expect(page.getByText("Public sign-up is disabled")).toBeVisible();
+});
+
 test("writer accounts are blocked from the editor queue", async ({ browser }) => {
   const context = await browser.newContext({
     storageState: writerStorageStatePath,

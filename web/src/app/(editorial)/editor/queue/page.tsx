@@ -1,17 +1,32 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { requireClerkUser } from "@/lib/clerk-guards";
+"use client";
+
+import { useQuery } from "convex/react";
+import { useAuth } from "@clerk/nextjs";
+import { api } from "@convex/_generated/api";
+import { ProfileSyncCard } from "@/components/auth/profile-sync-card";
 import { EditorialShell } from "@/components/editorial-shell";
 import { EditorQueueClient } from "@/components/editor/editor-queue-client";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getProvisionedRole } from "@/lib/provisioned-roles";
 
-export default async function EditorQueuePage() {
-  await requireClerkUser();
-  const user = await currentUser();
-  const primaryEmail = user?.primaryEmailAddress?.emailAddress;
-  const role = primaryEmail ? getProvisionedRole(primaryEmail) : null;
+export default function EditorQueuePage() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const viewer = useQuery(api.users.viewer, {});
 
-  if (role !== "editor") {
+  if (isLoaded && isSignedIn && viewer === null) {
+    return (
+      <EditorialShell
+        description="Finalizing your newsroom profile before opening the editor queue."
+        title="Editor review queue"
+      >
+        <ProfileSyncCard
+          description="Your Clerk account is signed in. We&apos;re finishing the Convex user record before opening the review queue."
+          title="Syncing your newsroom profile"
+        />
+      </EditorialShell>
+    );
+  }
+
+  if (isLoaded && isSignedIn && viewer && viewer.role !== "editor") {
     return (
       <EditorialShell
         description="This screen is restricted to editors."

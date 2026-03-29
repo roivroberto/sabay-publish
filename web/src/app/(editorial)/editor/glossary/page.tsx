@@ -3,6 +3,7 @@
 import { useQuery } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "@convex/_generated/api";
+import { ProfileSyncCard } from "@/components/auth/profile-sync-card";
 import { EditorialShell } from "@/components/editorial-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -21,17 +22,10 @@ export default function GlossaryPage() {
         description="Finalizing your Convex profile before loading the glossary."
         title="Editorial glossary"
       >
-        <Card className="rounded-[2rem] border-white/90 bg-white/92">
-          <CardHeader>
-            <CardTitle className="font-heading text-3xl">
-              Syncing your newsroom profile
-            </CardTitle>
-            <CardDescription>
-              Your Clerk account is signed in. We&apos;re finishing the Convex user
-              record before opening the glossary.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <ProfileSyncCard
+          description="Your Clerk account is signed in. We&apos;re finishing the Convex user record before opening the glossary."
+          title="Syncing your newsroom profile"
+        />
       </EditorialShell>
     );
   }

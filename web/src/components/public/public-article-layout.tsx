@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { FILIPINO_DISCLOSURE, type AppLocale } from "@/lib/constants";
 import { formatPublishedDate } from "@/lib/format";
+import { canUseOptimizedImage } from "@/lib/image-hosts";
 
 type PublishedArticle = NonNullable<
   FunctionReturnType<typeof api.public.getPublishedArticle>
@@ -19,6 +20,8 @@ export function PublicArticleLayout({
   article: PublishedArticle;
   locale: AppLocale;
 }) {
+  const canOptimizeHeroImage = canUseOptimizedImage(article.heroImageUrl);
+
   return (
     <main className="min-h-screen bg-background">
       <header className="border-b bg-white/92">
@@ -54,14 +57,26 @@ export function PublicArticleLayout({
             </div>
           </div>
           <div className="relative min-h-[22rem] overflow-hidden rounded-[2rem] border bg-muted">
-            <Image
-              alt={article.heroImageAlt}
-              className="object-cover"
-              fill
-              priority
-              sizes="(min-width: 1024px) 40vw, 100vw"
-              src={article.heroImageUrl}
-            />
+            {canOptimizeHeroImage ? (
+              <Image
+                alt={article.heroImageAlt}
+                className="object-cover"
+                fill
+                priority
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                src={article.heroImageUrl}
+              />
+            ) : (
+              // Fall back to a plain image when editors publish a remote host
+              // outside the optimization allowlist so the article still renders.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                alt={article.heroImageAlt}
+                className="h-full w-full object-cover"
+                loading="eager"
+                src={article.heroImageUrl}
+              />
+            )}
           </div>
         </section>
 

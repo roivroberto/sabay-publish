@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AlertCircle, LoaderCircle, Sparkles } from "lucide-react";
 import { ARTICLE_CATEGORIES } from "@/lib/constants";
+import { ProfileSyncCard } from "@/components/auth/profile-sync-card";
+import { useCurrentUserSync } from "@/components/providers/app-providers";
 import { shouldUsePublicMockTranslation } from "@/lib/env";
 import { slugifyHeadline } from "@/lib/slug";
 import { Button } from "@/components/ui/button";
@@ -56,6 +58,7 @@ export function ArticleForm({ articleId }: { articleId?: Id<"articles"> }) {
   const router = useRouter();
   const shouldMockTranslation = shouldUsePublicMockTranslation();
   const { isLoaded, isSignedIn } = useAuth();
+  const { status: currentUserSyncStatus } = useCurrentUserSync();
   const { isLoading: isConvexAuthLoading, isAuthenticated: isConvexAuthenticated } =
     useConvexAuth();
   const isSignedInToConvex =
@@ -120,10 +123,12 @@ export function ArticleForm({ articleId }: { articleId?: Id<"articles"> }) {
         : await createArticle(form);
 
       if (mode === "translate") {
-        await submitForTranslation({
+        const translationRequest = {
           articleId: targetArticleId,
-          mockTranslation: shouldMockTranslation,
-        });
+          ...(shouldMockTranslation ? { mockTranslation: true } : {}),
+        };
+
+        await submitForTranslation(translationRequest);
         toast.success("Translation requested. The Filipino draft is now generating.");
       } else {
         toast.success(articleId ? "Draft updated." : "Draft created.");
@@ -343,14 +348,21 @@ export function ArticleForm({ articleId }: { articleId?: Id<"articles"> }) {
         ) : null}
 
         {!articleId && !isCreateModeReady ? (
-          <Alert>
-            <AlertCircle data-icon="inline-start" />
-            <AlertTitle>Syncing your newsroom profile</AlertTitle>
-            <AlertDescription>
-              You can finish drafting now. Saving unlocks as soon as the Convex
-              session finishes provisioning your account.
-            </AlertDescription>
-          </Alert>
+          currentUserSyncStatus === "error" ? (
+            <ProfileSyncCard
+              description="You can keep drafting, but saving stays locked until your newsroom profile sync succeeds."
+              title="Syncing your newsroom profile"
+            />
+          ) : (
+            <Alert>
+              <AlertCircle data-icon="inline-start" />
+              <AlertTitle>Syncing your newsroom profile</AlertTitle>
+              <AlertDescription>
+                You can finish drafting now. Saving unlocks as soon as the Convex
+                session finishes provisioning your account.
+              </AlertDescription>
+            </Alert>
+          )
         ) : null}
 
         {bundle?.article?.translationError ? (

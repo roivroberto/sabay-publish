@@ -39,6 +39,11 @@ const articleFields = {
   slug: v.string(),
 };
 
+const RECENT_AUDIT_LOG_LIMIT = 15;
+const DASHBOARD_ARTICLE_LIMIT = 50;
+const REVIEW_QUEUE_LIMIT = 50;
+const GLOSSARY_TERM_LIMIT = 100;
+
 async function buildArticleBundle(
   ctx: QueryCtx,
   articleId: Id<"articles">,
@@ -73,17 +78,14 @@ async function buildArticleBundle(
   const auditLogs = await ctx.db
     .query("audit_logs")
     .withIndex("by_article", (query) => query.eq("articleId", article._id))
-    .collect();
-
-  auditLogs.sort(
-    (a: Doc<"audit_logs">, b: Doc<"audit_logs">) => b.timestamp - a.timestamp,
-  );
+    .order("desc")
+    .take(RECENT_AUDIT_LOG_LIMIT);
 
   return {
     article,
     localization,
     publication,
-    auditLogs: auditLogs.slice(0, 15),
+    auditLogs,
     author,
   };
 }
@@ -95,7 +97,7 @@ export const getDashboardData = query({
     const ownArticles = await ctx.db
       .query("articles")
       .withIndex("by_author", (query) => query.eq("authorId", viewer._id))
-      .collect();
+      .take(DASHBOARD_ARTICLE_LIMIT);
 
     ownArticles.sort((a, b) => b.updatedAt - a.updatedAt);
 
@@ -106,7 +108,7 @@ export const getDashboardData = query({
             .withIndex("by_status", (query) =>
               query.eq("status", "NEEDS_REVIEW"),
             )
-            .collect()
+            .take(REVIEW_QUEUE_LIMIT)
         : [];
 
     return {
@@ -157,7 +159,7 @@ export const getEditorQueue = query({
     const articles = await ctx.db
       .query("articles")
       .withIndex("by_status", (query) => query.eq("status", "NEEDS_REVIEW"))
-      .collect();
+      .take(REVIEW_QUEUE_LIMIT);
 
     const rows = await Promise.all(
       articles.map(async (article) => {
@@ -371,7 +373,7 @@ export const saveLocalizationEdits = mutation({
     const glossaryTerms = await ctx.db
       .query("glossary_terms")
       .withIndex("by_active", (query) => query.eq("active", true))
-      .collect();
+      .take(GLOSSARY_TERM_LIMIT);
 
     const qaWarnings = buildQaWarnings({
       headline: article.headline,
@@ -555,7 +557,7 @@ export const getGlossaryTerms = internalQuery({
     return await ctx.db
       .query("glossary_terms")
       .withIndex("by_active", (query) => query.eq("active", true))
-      .collect();
+      .take(GLOSSARY_TERM_LIMIT);
   },
 });
 

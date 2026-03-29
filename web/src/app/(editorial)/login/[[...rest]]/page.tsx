@@ -1,14 +1,25 @@
+import { redirect } from "next/navigation";
 import { ParalumanLogo } from "@/components/brand/paraluman-logo";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { LoginSignIn } from "@/components/auth/login-sign-in";
 
 export default async function LoginPage({
+  params,
   searchParams,
 }: {
-  searchParams: Promise<{ access?: string }>;
+  params: Promise<{ rest?: string[] }>;
+  searchParams: Promise<{ access?: string; mode?: string }>;
 }) {
+  const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
+  const blockedSignUpRoutes = new Set(["create", "sign-up", "signup"]);
+
+  if (resolvedParams.rest?.some((segment) => blockedSignUpRoutes.has(segment))) {
+    redirect("/login?mode=signup-disabled");
+  }
+
   const accessDenied = resolvedSearchParams.access === "denied";
+  const signUpDisabled = resolvedSearchParams.mode === "signup-disabled";
 
   return (
     <main className="editorial-shell flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
@@ -39,6 +50,15 @@ export default async function LoginPage({
                 <AlertDescription>
                   This Clerk account is not in the newsroom allowlist. Sign in with a
                   provisioned account or ask an editor to add you first.
+                </AlertDescription>
+              </Alert>
+            ) : null}
+            {signUpDisabled ? (
+              <Alert>
+                <AlertTitle>Public sign-up is disabled</AlertTitle>
+                <AlertDescription>
+                  Paraluman accounts are provisioned by the newsroom. Sign in with an
+                  existing writer or editor account.
                 </AlertDescription>
               </Alert>
             ) : null}

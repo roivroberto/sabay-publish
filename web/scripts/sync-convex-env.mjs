@@ -5,7 +5,7 @@ loadDotenv({ path: ".env.local" });
 loadDotenv({ path: ".env", override: false });
 
 const useProductionDeployment = process.argv.includes("--prod");
-const requiredVariables = ["CLERK_JWT_ISSUER_DOMAIN"];
+const requiredVariables = ["CLERK_JWT_ISSUER_DOMAIN", "CLERK_WEBHOOK_SECRET"];
 const optionalVariables = [
   "DEMO_WRITER_EMAILS",
   "DEMO_EDITOR_EMAILS",

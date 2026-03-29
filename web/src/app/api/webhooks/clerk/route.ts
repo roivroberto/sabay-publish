@@ -28,8 +28,17 @@ export async function POST(request: NextRequest) {
       [event.data.first_name, event.data.last_name].filter(Boolean).join(" ") ||
       event.data.username ||
       primaryEmail;
+    const signingSecret = process.env.CLERK_WEBHOOK_SECRET;
+
+    if (!signingSecret) {
+      return NextResponse.json(
+        { error: "CLERK_WEBHOOK_SECRET is not configured." },
+        { status: 500 },
+      );
+    }
 
     await fetchMutation(api.users.upsertFromWebhook, {
+      sharedSecret: signingSecret,
       clerkId: event.data.id,
       email: primaryEmail,
       displayName,
