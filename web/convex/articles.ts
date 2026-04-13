@@ -709,3 +709,108 @@ export const storeTranslationFailure = internalMutation({
     return true;
   },
 });
+
+export const seed = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Attempt to find a user to assign these articles to
+    const firstUser = await ctx.db.query("users").first();
+    if (!firstUser) {
+      throw new Error("No users found in database. Please log in to the website once first to create your account.");
+    }
+    
+    const userId = firstUser._id;
+    const now = Date.now();
+
+    // 1. A Rejected Article
+    const rejectedId = await ctx.db.insert("articles", {
+      headline: "Local markets see surge in vegetable prices due to El Niño",
+      deck: "Supply chain disruptions lead to higher costs for consumers in Metro Manila.",
+      body: "Vegetable prices in Metro Manila markets have increased by up to 30% over the past week. Traders attribute this to the ongoing El Niño phenomenon, which has severely affected crops in Northern Luzon. The Department of Agriculture is now monitoring the situation to ensure stable supply.",
+      byline: "Market Reporter",
+      category: "news",
+      heroImageUrl: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=1200",
+      heroImageCaption: "Local market in Quezon City",
+      heroImageAlt: "Vegetables in a market",
+      slug: "vegetable-prices-surge-rejected",
+      authorId: userId,
+      status: "DRAFT",
+      sourceLanguage: "en",
+      latestEditorNote: "The Filipino translation had some inaccuracies in the price percentages. Please double-check the figures and resubmit.",
+      translationError: null,
+      createdAt: now - 86400000,
+      updatedAt: now - 3600000,
+    });
+
+    // 2. An Article in Translating
+    const translatingId = await ctx.db.insert("articles", {
+      headline: "Digital literacy program launched for public schools in remote areas",
+      deck: "New initiative aims to bridge the digital divide for thousands of students.",
+      body: "A new government initiative is providing laptops and high-speed internet to public schools in provinces. The goal is to provide digital literacy skills to students in far-flung areas. This project is a partnership between the Department of Information and Communications Technology and local government units.",
+      byline: "Education Desk",
+      category: "feature",
+      heroImageUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=1200",
+      heroImageCaption: "Students using new computers",
+      heroImageAlt: "Digital classroom",
+      slug: "digital-literacy-remote-schools",
+      authorId: userId,
+      status: "TRANSLATING",
+      sourceLanguage: "en",
+      latestEditorNote: null,
+      translationError: null,
+      createdAt: now - 7200000,
+      updatedAt: now - 300000,
+    });
+
+    // 3. An Article for Review (Needs Review)
+    const reviewId = await ctx.db.insert("articles", {
+      headline: "National Museum announces free admission for Independence Day",
+      deck: "Citizens can visit all museum branches across the country without charge on June 12.",
+      body: "In celebration of Philippine Independence Day, the National Museum of the Philippines has announced free admission for all visitors. This special event aims to encourage Filipinos to reconnect with their history and heritage. Exhibits will include historical artifacts and contemporary art from across the islands.",
+      byline: "Culture Writer",
+      category: "culture",
+      heroImageUrl: "https://images.unsplash.com/photo-1518998053574-53f1f61f9b8d?auto=format&fit=crop&q=80&w=1200",
+      heroImageCaption: "National Museum of Fine Arts",
+      heroImageAlt: "Museum facade",
+      slug: "national-museum-independence-day",
+      authorId: userId,
+      status: "NEEDS_REVIEW",
+      sourceLanguage: "en",
+      latestEditorNote: null,
+      translationError: null,
+      createdAt: now - 172800000,
+      updatedAt: now - 1800000,
+    });
+
+    // 4. A Published Article
+    const publishedId = await ctx.db.insert("articles", {
+      headline: "Philippine startup ecosystem grows with new venture capital funding",
+      deck: "Local tech companies receive significant investment to expand operations.",
+      body: "The startup ecosystem in the Philippines is experiencing a surge in venture capital interest. Several local tech startups have recently closed funding rounds totaling millions of dollars. This growth is expected to create more jobs and drive innovation in the digital economy.",
+      byline: "Business Reporter",
+      category: "news",
+      heroImageUrl: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&q=80&w=1200",
+      heroImageCaption: "Modern office space in BGC",
+      heroImageAlt: "Startup office",
+      slug: "startup-funding-surge-published",
+      authorId: userId,
+      status: "PUBLISHED",
+      sourceLanguage: "en",
+      latestEditorNote: null,
+      translationError: null,
+      createdAt: now - 604800000,
+      updatedAt: now - 518400000,
+    });
+
+    await insertAuditLog(ctx, {
+      articleId: publishedId,
+      actorId: userId,
+      action: "article_published",
+      fromStatus: "NEEDS_REVIEW",
+      toStatus: "PUBLISHED",
+      metadata: { locale: "en,fil", slug: "startup-funding-surge-published" },
+    });
+
+    return { rejectedId, translatingId, reviewId, publishedId };
+  },
+});

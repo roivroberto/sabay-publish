@@ -1,6 +1,28 @@
+# OS files
 .DS_Store
 Thumbs.db
-*.swp
-*.swo
+
+# IDE configs
+.vscode/
+.idea/
+
+# Build artifacts
+dist/
+build/
+out/
+.next/
+
+# Dependency folders
+node_modules/
+__pycache__/
+.venv/
+vendor/
+
+# Environment files
+.env
+.env.local
+.env.*
+
+# Project specific
 .private/
-.vercel
+web/convex/_generated/
